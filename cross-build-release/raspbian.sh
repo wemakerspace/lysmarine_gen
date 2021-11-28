@@ -7,24 +7,36 @@
 
   thisArch="raspios"
   cpuArch="armhf"
-  zipName="raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/2021-05-07-raspios-buster-armhf-lite.zip"
   if [ "arm64" == "$MY_CPU_ARCH" ]; then
     cpuArch="arm64"
-    zipName="raspios_lite_arm64/images/raspios_lite_arm64-2021-05-28/2021-05-07-raspios-buster-arm64-lite.zip"
   fi
-  imageSource="https://downloads.raspberrypi.org/${zipName}"
 
   checkRoot
 
   # Create caching folder hierarchy to work with this architecture.
   setupWorkSpace $thisArch
 
-  # Download the official image
+  zipName="lysmarine-bbn_2021-11-15-raspios-${cpuArch}.img.xz"
+  imageSource="https://github.com/bareboat-necessities/lysmarine_gen/releases/download/v2021-11-15/${zipName}"
+
+# Download the official image
   log "Downloading official image from internet."
   myCache=./cache/$thisArch
-  wget -P $myCache/ $imageSource
-  7z e -o$myCache/ $myCache/$(basename $zipName)
-  rm $myCache/$(basename $zipName)
+  prefix=$myCache/$zipName
+{
+  echo curl -k -L -o $prefix.part1 $imageSource.part1
+  echo curl -k -L -o $prefix.part2 $imageSource.part2
+  echo curl -k -L -o $prefix.part3 $imageSource.part3
+  echo curl -k -L -o $prefix.part4 $imageSource.part4
+  echo curl -k -L -o $prefix.part5 $imageSource.part5
+  echo curl -k -L -o $prefix.part6 $imageSource.part6
+} | xargs -L 1 -I CMD -P 6 bash -c CMD
+
+  cat $prefix.part? > $myCache/$zipName
+  rm $prefix.part?
+
+  7z e -o$myCache/ $myCache/$zipName
+  rm $myCache/$zipName
 
   # Copy image file to work folder add temporary space to it.
   imageName=$(
@@ -47,7 +59,7 @@
   ls -l $mkRoot
 
   mkdir -p ./cache/${thisArch}/stageCache
-  mkdir -p $mkRoot/install-scripts/stageCache
+  mkdir -p $mkRoot/install-scripts-patch1/stageCache
   mkdir -p /run/shm
   mkdir -p $mkRoot/run/shm
   mount -o bind /etc/resolv.conf $mkRoot/etc/resolv.conf
@@ -55,10 +67,10 @@
   mount -o bind /sys $mkRoot/sys
   mount -o bind /proc $mkRoot/proc
   mount -o bind /tmp $mkRoot/tmp
-  mount --rbind $myCache/stageCache $mkRoot/install-scripts/stageCache
+  mount --rbind $myCache/stageCache $mkRoot/install-scripts-patch1/stageCache
   mount --rbind /run/shm $mkRoot/run/shm
   chroot $mkRoot /bin/bash -xe <<EOF
-    set -x; set -e; cd /install-scripts; export LMBUILD="raspios"; ls; chmod +x *.sh; ./install.sh 0 2 4 6 8 a; exit
+    set -x; set -e; cd /install-scripts-patch1; export LMBUILD="raspios"; ls; chmod +x *.sh; ./install.sh 0 2 a; exit
 EOF
 
   # Unmount

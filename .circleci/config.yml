@@ -7,11 +7,12 @@ executors:
     machine:
       enabled: true
       image: ubuntu-1604:202010-01
+      resource_class: large
 commands:
   git-checkout:
     steps:
       - checkout
-      - run: mv install-scripts cross-build-release/
+      - run: mv install-scripts-patch1 cross-build-release/
   build-n-publish-debian:
     steps:
       - run: sudo apt-get -y install wget

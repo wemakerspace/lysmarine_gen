@@ -44,7 +44,7 @@ mountImageFile() {
   echo $partQty partitions detected.
 
   # mount partition table in /dev/loop
-  loopId=$(kpartx -sav $imageFile | cut -d' ' -f3 | grep -oh '[0-9]*' | head -n 1)
+  loopId=$(echo $partitions | grep -oh '[0-9]*' | head -n 1)
 
   if [ $partQty == 2 ]; then
     mount $mountOpt -v /dev/mapper/loop${loopId}p2 $rootfs/
@@ -65,8 +65,8 @@ umountImageFile() {
   rootfs=./work/${thisArch}/rootfs
 
   rm -rf $rootfs/home/border
-  rm -rf $rootfs/install-scripts/stageCache/*
-  rm -rf $rootfs/install-scripts/logs/*
+  rm -rf $rootfs/install-scripts-patch1/stageCache/*
+  rm -rf $rootfs/install-scripts-patch1/logs/*
   find $rootfs/var/log/ -type f -exec rm -rf {} \;
   rm -rf $rootfs/tmp/*
 
@@ -75,7 +75,7 @@ umountImageFile() {
   umount $rootfs/sys
   umount $rootfs/proc
   umount $rootfs/tmp
-  umount $rootfs/install-scripts/stageCache
+  umount $rootfs/install-scripts-patch1/stageCache
   umount $rootfs/run/shm
   umount $rootfs/boot
   umount $rootfs
@@ -89,11 +89,11 @@ inflateImage() {
   imageLocationInflated=${imageLocation}-inflated
 
   if [ ! -f $imageLocationInflated ]; then
-    log "Inflating OS image to have enough space to build lysmarine. "
+    log "Inflating OS image to have enough space to build lysmarine."
     cp -fv ${imageLocation} $imageLocationInflated
 
-    log "truncate image to 10G"
-    truncate -s "10G" $imageLocationInflated
+    log "truncate image to 10000M"
+    truncate -s "10000M" $imageLocationInflated
 
     log "resize last partition to 100%"
     partQty=$(fdisk -l $imageLocationInflated | grep -o "^$imageLocationInflated" | wc -l)
@@ -101,7 +101,12 @@ inflateImage() {
     fdisk -l $imageLocationInflated
 
     log "Resize the filesystem to fit the partition."
-    loopId=$(kpartx -sav $imageLocationInflated | cut -d" " -f3 | grep -oh '[0-9]*' | head -n 1)
+    partitions=$(kpartx -sav $imageLocationInflated | cut -d' ' -f3)
+    log $partitions
+    loopId=$(echo $partitions | grep -oh '[0-9]*' | head -n 1)
+    if [ -z "${loopId}" ]; then
+      loopId=0
+    fi
     sleep 5
     ls -l /dev/mapper/
 
@@ -118,6 +123,7 @@ function addLysmarineScripts() {
   rootfs=./work/${thisArch}/rootfs
   log "copying lysmarine on the image"
   ls $rootfs
-  cp -r ./install-scripts ${rootfs}/
-  chmod 0775 ${rootfs}/install-scripts/install.sh
+  rm -rf ${rootfs}/install-scripts-patch1/
+  cp -r ./install-scripts-patch1 ${rootfs}/
+  chmod 0775 ${rootfs}/install-scripts-patch1/install.sh
 }
