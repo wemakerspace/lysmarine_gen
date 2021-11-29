@@ -23,12 +23,12 @@ for pkg_file in cross-build-release/release/*/*.$EXT; do
   for idx in 0 1 2 3 4 5; do
     FILE=${zipName}.xz.part${idx}
     echo curl -X POST \
-    -H '"Content-Length: $(stat --format=%s '$FILE')"' \
-    -H '"Content-Type: $(file -b --mime-type '$FILE')"' \
+    -H '"Content-Length: '$(stat --format=%s $FILE)'"' \
+    -H '"Content-Type: '$(file -b --mime-type $FILE)'"' \
     -T '"'$FILE'"' \
     -H '"Authorization: token '$GITHUB_TOKEN'"' \
     -H '"Accept: application/vnd.github.v3+json"' \
-    '"https://uploads.github.com/repos/bareboat-necessities/lysmarine_gen/releases/54202060/assets?name=$(basename '$FILE')" | cat' \
+    '"https://uploads.github.com/repos/bareboat-necessities/lysmarine_gen/releases/54202060/assets?name='$(basename $FILE)'" | cat' \
       >> upload.command
   done
   cat upload.command
