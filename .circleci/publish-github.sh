@@ -19,7 +19,7 @@ for pkg_file in cross-build-release/release/*/*.$EXT; do
   cd $zipDir || exit 255
   xz -z -c -v -1 --threads=4 --memory=2G ${zipName} > ../../../tmp/${zipName}.xz
   cd ../../../tmp || exit 255
-  split -d -n 6 -a 1 ${zipName}.xz ${zipName}.xz.part
+  split -d -n 6 -a 1 ${zipName}.xz ${zipName}.xz.part.
   for idx in 0 1 2 3 4 5; do
     FILE=${zipName}.xz.part.${idx}
     echo curl -X POST \
