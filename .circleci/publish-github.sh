@@ -31,5 +31,5 @@ for pkg_file in cross-build-release/release/*/*.$EXT; do
     '"https://uploads.github.com/repos/bareboat-necessities/lysmarine_gen/releases/54202060/assets?name='$(basename $FILE)'"' >> upload.command
   done
   cat upload.command
-  cat upload.command | xargs -L 1 -I CMD -P 6 bash -c CMD
+  cat upload.command | xargs -0 -L 1 -I CMD -P 6 bash -c CMD
 done
