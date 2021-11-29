@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+apt-get remove -y arduino
+
 pushd /opt
   ARD_URL=https://downloads.arduino.cc
   ARD_FILE=arduino-1.8.16-linuxarm.tar.xz
