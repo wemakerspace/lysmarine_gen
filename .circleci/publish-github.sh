@@ -28,8 +28,7 @@ for pkg_file in cross-build-release/release/*/*.$EXT; do
     -T '"'$FILE'"' \
     -H '"Authorization: token '$GITHUB_TOKEN'"' \
     -H '"Accept: application/vnd.github.v3+json"' \
-    '"https://uploads.github.com/repos/bareboat-necessities/lysmarine_gen/releases/54202060/assets?name='$(basename $FILE)'" | cat' \
-      >> upload.command
+    '"https://uploads.github.com/repos/bareboat-necessities/lysmarine_gen/releases/54202060/assets?name='$(basename $FILE)'"' >> upload.command
   done
   cat upload.command
   cat upload.command | xargs -L 1 -I CMD -P 6 bash -c CMD
