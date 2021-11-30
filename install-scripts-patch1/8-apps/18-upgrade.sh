@@ -2,4 +2,4 @@
 
 apt-get update
 
-apt-get install rpi-eeprom raspotify gpsd gpsd-tools gpsd-clients
+apt-get install -y rpi-eeprom raspotify gpsd gpsd-tools gpsd-clients
